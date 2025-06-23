@@ -6,13 +6,18 @@ interface LinkData {
   createdAt: string;
 }
 
+interface RouteContext {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
 const storedLinks = new Map<string, LinkData>();
 
-export async function GET(
-  request: NextRequest,
-  { params: { id } }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, context: RouteContext) {
   try {
+    const { id } = await context.params;
+
     const linkData: LinkData | undefined = storedLinks.get(id);
 
     if (!linkData) {
