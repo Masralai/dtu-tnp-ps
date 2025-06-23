@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+    env: {
+    SHARE_TOKEN: process.env.SHARE_TOKEN,
+  },
 };
 
 export default nextConfig;
