@@ -16,18 +16,6 @@ interface Student {
 }
 
 
-const EXAMPLE_STUDENTS_DATA: Student[] = [
-  { "first_name": "Aarav", "last_name": "Sharma", "email": "aarav.sharma@example.com", "roll_no": "2K23/CO/001" },
-  { "first_name": "Ananya", "last_name": "Verma", "email": "ananya.verma@example.com", "roll_no": "2K23/CO/002" },
-  { "first_name": "Rohan", "last_name": "Malhotra", "email": "rohan.malhotra@example.com", "roll_no": "2K23/CO/003" },
-  { "first_name": "Ishita", "last_name": "Kapoor", "email": "ishita.kapoor@example.com", "roll_no": "2K23/CO/004" },
-  { "first_name": "Kabir", "last_name": "Singh", "email": "kabir.singh@example.com", "roll_no": "2K23/CO/005" },
-  { "first_name": "Meera", "last_name": "Joshi", "email": "meera.joshi@example.com", "roll_no": "2K23/CO/006" },
-  { "first_name": "Dev", "last_name": "Bansal", "email": "dev.bansal@example.com", "roll_no": "2K23/CO/007" },
-  { "first_name": "Simran", "last_name": "Sethi", "email": "simran.sethi@example.com", "roll_no": "2K23/CO/008" },
-  { "first_name": "Nikhil", "last_name": "Rao", "email": "nikhil.rao@example.com", "roll_no": "2K23/CO/009" },
-  { "first_name": "Tanya", "last_name": "Mishra", "email": "tanya.mishra@example.com", "roll_no": "2K23/CO/010" }
-];
 
 
 export default function SharePage() {
@@ -39,21 +27,29 @@ export default function SharePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
-  useEffect(() => {
+ 
 
-    if (uniqueId) {
-      setLoading(true);
-      setTimeout(() => {
-        setStudents(EXAMPLE_STUDENTS_DATA);
-        setFilteredStudents(EXAMPLE_STUDENTS_DATA); 
+    useEffect(() => {
+  if (uniqueId) {
+    setLoading(true);
+    
+    fetch(`/api/shared-data/${uniqueId}`) 
+      .then(res => {
+        if (!res.ok) throw new Error('Invalid or expired link');
+        return res.json();
+      })
+      .then(data => {
+        setStudents(data.students); 
+        setFilteredStudents(data.students);
         setLoading(false);
-      }, 1000);
-    } else {
-       
-        setError("Invalid access: No share link provided in the URL.");
+      })
+      .catch(_err => {
+        console.log(_err)
+        setError("Failed to load student data or invalid link");
         setLoading(false);
-    }
-  }, [uniqueId]);
+      });
+  }
+}, [uniqueId]);
 
   useEffect(() => {
     if (students.length > 0) {
