@@ -6,6 +6,8 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies()
     cookieStore.delete("admin-session")
 
+    console.log("Request method:", request.method);
+
     return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json({ error: "Server error" }, { status: 500 })

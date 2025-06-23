@@ -6,6 +6,8 @@ export async function GET(request: NextRequest) {
     const cookieStore = await cookies()
     const session = cookieStore.get("admin-session")
 
+    console.log("Request method:", request.method);
+
     if (session?.value === "authenticated") {
       return NextResponse.json({ authenticated: true })
     } else {

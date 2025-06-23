@@ -1,50 +1,60 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { linkMappings } from "../../generate-link/route"
-import axios from "axios" 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+import { type NextRequest, NextResponse } from "next/server";
+import { linkMappings } from "../../generate-link/route";
+import axios from "axios";
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const uniqueId = params.id
+    const uniqueId = params.id;
 
- 
-    const linkData =  linkMappings.get(uniqueId)
+    const linkData = linkMappings.get(uniqueId);
 
     if (!linkData) {
-      return NextResponse.json({ error: "Invalid or expired link" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Invalid or expired link" },
+        { status: 404 }
+      );
     }
 
-    
+    console.log("Request method:", request.method);
+
     const axiosResponse = await axios.get(
       `https://tnp-recruitment-challenge.manitvig.live/share`,
       {
         params: {
-          shareToken: linkData.shareToken, 
+          shareToken: linkData.shareToken,
         },
       }
-    )
+    );
 
-   
-    const students = axiosResponse.data
+    const students = axiosResponse.data;
 
-    return NextResponse.json({ students })
+    return NextResponse.json({ students });
+  } catch (error: any) {
+    console.error("Resolve link error:", error);
 
-  } catch (error: any) { 
-    console.error("Resolve link error:", error)
-
-    
     if (axios.isAxiosError(error) && error.response) {
       if (error.response.status === 401 || error.response.status === 403) {
-        
-        const uniqueId = params.id; 
-        linkMappings.delete(uniqueId)
-        return NextResponse.json({ error: "Share token has expired" }, { status: 401 })
+        const uniqueId = params.id;
+        linkMappings.delete(uniqueId);
+        return NextResponse.json(
+          { error: "Share token has expired" },
+          { status: 401 }
+        );
       } else {
-        
-        const errorMessage = error.response.data?.error || "Failed to fetch student data";
-        return NextResponse.json({ error: errorMessage }, { status: error.response.status || 500 })
+        const errorMessage =
+          error.response.data?.error || "Failed to fetch student data";
+        return NextResponse.json(
+          { error: errorMessage },
+          { status: error.response.status || 500 }
+        );
       }
     } else {
-    
-      return NextResponse.json({ error: "Network error occurred" }, { status: 500 })
+      return NextResponse.json(
+        { error: "Network error occurred" },
+        { status: 500 }
+      );
     }
   }
 }
