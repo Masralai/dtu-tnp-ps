@@ -2,7 +2,7 @@
 
 import React from "react";
 import axios from "axios";
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react" 
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
@@ -27,30 +27,32 @@ export default function Admin() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
     const router = useRouter()
-    useEffect(() => {
-        checkAuth()
-        loadShareLinks()
-    }, [])
 
-    const checkAuth = async () => {
+
+    const checkAuth = useCallback(async () => {
         try {
             await axios.get("/api/auth/verify");
-
         } catch (err) {
             console.error("Authentication check failed:", err);
             router.push("/login");
         }
-    };
+    }, [router]); 
 
-    const loadShareLinks = async () => {
+
+    const loadShareLinks = useCallback(async () => {
         try {
+
             const response = await axios.get("/api/resolve-link/[id]");
             setShareLinks(response.data.links);
         } catch (err) {
             console.error("Failed to load share links:", err);
-
         }
-    };
+    }, [setShareLinks]);
+
+    useEffect(() => {
+        checkAuth();
+        loadShareLinks();
+    }, [checkAuth, loadShareLinks]); 
 
     const generateShareLink = async () => {
         setLoading(true);
@@ -110,7 +112,6 @@ export default function Admin() {
 
         }
     };
-
 
 
     return (

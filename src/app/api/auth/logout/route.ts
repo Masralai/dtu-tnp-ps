@@ -9,7 +9,8 @@ export async function POST(request: NextRequest) {
     console.log("Request method:", request.method);
 
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch (_error) {
+   console.error(_error)
     return NextResponse.json({ error: "Server error" }, { status: 500 })
   }
 }

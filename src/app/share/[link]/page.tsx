@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-
+import { useParams } from "next/navigation" 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,97 +16,46 @@ interface Student {
 }
 
 
+const EXAMPLE_STUDENTS_DATA: Student[] = [
+  { "first_name": "Aarav", "last_name": "Sharma", "email": "aarav.sharma@example.com", "roll_no": "2K23/CO/001" },
+  { "first_name": "Ananya", "last_name": "Verma", "email": "ananya.verma@example.com", "roll_no": "2K23/CO/002" },
+  { "first_name": "Rohan", "last_name": "Malhotra", "email": "rohan.malhotra@example.com", "roll_no": "2K23/CO/003" },
+  { "first_name": "Ishita", "last_name": "Kapoor", "email": "ishita.kapoor@example.com", "roll_no": "2K23/CO/004" },
+  { "first_name": "Kabir", "last_name": "Singh", "email": "kabir.singh@example.com", "roll_no": "2K23/CO/005" },
+  { "first_name": "Meera", "last_name": "Joshi", "email": "meera.joshi@example.com", "roll_no": "2K23/CO/006" },
+  { "first_name": "Dev", "last_name": "Bansal", "email": "dev.bansal@example.com", "roll_no": "2K23/CO/007" },
+  { "first_name": "Simran", "last_name": "Sethi", "email": "simran.sethi@example.com", "roll_no": "2K23/CO/008" },
+  { "first_name": "Nikhil", "last_name": "Rao", "email": "nikhil.rao@example.com", "roll_no": "2K23/CO/009" },
+  { "first_name": "Tanya", "last_name": "Mishra", "email": "tanya.mishra@example.com", "roll_no": "2K23/CO/010" }
+];
+
+
 export default function SharePage() {
+  const { link: uniqueId } = useParams() as { link: string }; 
 
-  // Example student data
-  const exampleStudents = [
-    {
-      "first_name": "Aarav",
-      "last_name": "Sharma",
-      "email": "aarav.sharma@example.com",
-      "roll_no": "2K23/CO/001"
-    },
-    {
-      "first_name": "Ananya",
-      "last_name": "Verma",
-      "email": "ananya.verma@example.com",
-      "roll_no": "2K23/CO/002"
-    },
-    {
-      "first_name": "Rohan",
-      "last_name": "Malhotra",
-      "email": "rohan.malhotra@example.com",
-      "roll_no": "2K23/CO/003"
-    },
-    {
-      "first_name": "Ishita",
-      "last_name": "Kapoor",
-      "email": "ishita.kapoor@example.com",
-      "roll_no": "2K23/CO/004"
-    },
-    {
-      "first_name": "Kabir",
-      "last_name": "Singh",
-      "email": "kabir.singh@example.com",
-      "roll_no": "2K23/CO/005"
-    },
-    {
-      "first_name": "Meera",
-      "last_name": "Joshi",
-      "email": "meera.joshi@example.com",
-      "roll_no": "2K23/CO/006"
-    },
-    {
-      "first_name": "Dev",
-      "last_name": "Bansal",
-      "email": "dev.bansal@example.com",
-      "roll_no": "2K23/CO/007"
-    },
-    {
-      "first_name": "Simran",
-      "last_name": "Sethi",
-      "email": "simran.sethi@example.com",
-      "roll_no": "2K23/CO/008"
-    },
-    {
-      "first_name": "Nikhil",
-      "last_name": "Rao",
-      "email": "nikhil.rao@example.com",
-      "roll_no": "2K23/CO/009"
-    },
-    {
-      "first_name": "Tanya",
-      "last_name": "Mishra",
-      "email": "tanya.mishra@example.com",
-      "roll_no": "2K23/CO/010"
-    }
-  ]
-
-
-
-  const token = process.env.SHARE_TOKEN
   const [students, setStudents] = useState<Student[]>([])
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([])
   const [emailFilter, setEmailFilter] = useState("")
-  const [loading, setLoading] = useState(true) 
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
   useEffect(() => {
-    if (token) {
-      setLoading(true); 
+
+    if (uniqueId) {
+      setLoading(true);
       setTimeout(() => {
-        setStudents(exampleStudents)
-        setFilteredStudents(exampleStudents)
-        setLoading(false)
-      }, 1000) 
+        setStudents(EXAMPLE_STUDENTS_DATA);
+        setFilteredStudents(EXAMPLE_STUDENTS_DATA); 
+        setLoading(false);
+      }, 1000);
     } else {
-        setError("Invalid access: No token provided in the URL.");
+       
+        setError("Invalid access: No share link provided in the URL.");
         setLoading(false);
     }
-  }, [token])
+  }, [uniqueId]);
 
   useEffect(() => {
-   
     if (students.length > 0) {
       if (emailFilter) {
         const filtered = students.filter((student) =>
@@ -206,7 +155,7 @@ export default function SharePage() {
                 <div className="text-center py-8 text-muted-foreground">No student records available.</div>
               )}
               {filteredStudents.length === 0 && emailFilter && (
-                <div className="text-center py-8 text-muted-foreground">N o students found matching "{emailFilter}"</div>
+                <div className="text-center py-8 text-muted-foreground">No students found matching &quot;{emailFilter}&quot;</div> 
               )}
             </div>
           </CardContent>

@@ -1,14 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { linkMappings } from "../../generate-link/route";
 import axios from "axios";
+
+interface LinkData {
+  shareToken: string;
+  createdAt: string;
+}
+
+const storedLinks = new Map<string, LinkData>();
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: { id } }: { params: { id: string } }
 ) {
   try {
-    const uniqueId = params.id;
-
-    const linkData = linkMappings.get(uniqueId);
+    const linkData: LinkData | undefined = storedLinks.get(id);
 
     if (!linkData) {
       return NextResponse.json(
@@ -18,6 +23,9 @@ export async function GET(
     }
 
     console.log("Request method:", request.method);
+    console.log(
+      `Resolving link for ID: ${id} with shareToken: ${linkData.shareToken}`
+    );
 
     const axiosResponse = await axios.get(
       `https://tnp-recruitment-challenge.manitvig.live/share`,
@@ -31,13 +39,11 @@ export async function GET(
     const students = axiosResponse.data;
 
     return NextResponse.json({ students });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Resolve link error:", error);
 
     if (axios.isAxiosError(error) && error.response) {
       if (error.response.status === 401 || error.response.status === 403) {
-        const uniqueId = params.id;
-        linkMappings.delete(uniqueId);
         return NextResponse.json(
           { error: "Share token has expired" },
           { status: 401 }
@@ -51,8 +57,10 @@ export async function GET(
         );
       }
     } else {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
       return NextResponse.json(
-        { error: "Network error occurred" },
+        { error: `Network error occurred: ${errorMessage}` },
         { status: 500 }
       );
     }
